@@ -1,0 +1,48 @@
+
+@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed');
+
+/* body */
+
+body {
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+/* table general */
+
+table {
+    border-collapse: collapse;
+}
+
+/* table header */
+
+table th {
+    color: #eee;
+    background-color: #4682b4;
+}
+
+table th + th {
+    border-left: 1px dotted #b0c4de;
+}
+
+/* table rows */
+
+table td + td {
+    border-left: 1px dotted #bbb;
+}
+
+table td {
+    text-align: right;
+    padding-left: 0.2ex;
+    padding-right: 0.2ex;
+}
+
+table tr:nth-child(odd) {
+    background-color: #eeeeee;
+}
+table tr:nth-child(even) {
+    background-color: #ffffff;
+}
+
+table tr:hover {
+    background-color: #e68626;  /* a sort of ochre color */
+}
