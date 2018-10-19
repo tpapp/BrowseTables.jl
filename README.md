@@ -30,4 +30,4 @@ open_html_table(table) # open in browser
 
 ## How it looks
 
-[The above table rendered](assets/example.html) with the default CSS style (which you can customize).
+[The above table rendered](https://htmlpreview.github.io/?https://github.com/tpapp/BrowseTables.jl/master/assets/example.html) with the default CSS style (which you can customize).
