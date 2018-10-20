@@ -75,11 +75,14 @@ written to HTML directly.
 """
 cellwithattributes(::TableOptions, x) = escapestring(string(x)), NamedTuple()
 
+cellwithattributes(::TableOptions, x::Real) =
+    escapestring(string(x)), isfinite(x) ? NamedTuple() : (class = "nonfinite", )
+
 cellwithattributes(::TableOptions, str::AbstractString) =
     escapestring(str), (class = "alignleft", )
 
 cellwithattributes(::TableOptions, x::Union{Missing,Nothing}) =
-    escapestring(repr(x)), (class = "aligncenter", )
+    escapestring(repr(x)), (class = "likemissing", )
 
 struct RowId
     id::Int

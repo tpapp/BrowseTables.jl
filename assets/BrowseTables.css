@@ -36,6 +36,19 @@ table td {
     padding-right: 0.4ex;
 }
 
+table tr:nth-child(odd) {
+    background-color: #eeeeee;
+}
+table tr:nth-child(even) {
+    background-color: #ffffff;
+}
+
+table tr:hover {
+    background-color: #e68626;  /* a sort of ochre color */
+}
+
+/* cell formatting */
+
 .rowid {
     color: #aaa;
     font-style: italic;
@@ -49,13 +62,11 @@ table td {
     text-align: center;
 }
 
-table tr:nth-child(odd) {
-    background-color: #eeeeee;
-}
-table tr:nth-child(even) {
-    background-color: #ffffff;
+.likemissing {
+    color: #808000;             /* olive */
+    text-align: center;
 }
 
-table tr:hover {
-    background-color: #e68626;  /* a sort of ochre color */
+.nonfinite {
+    color: #808000;             /* olive */
 }
