@@ -1,0 +1,92 @@
+
+@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed');
+
+/* body */
+
+body {
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+/* table general */
+
+table {
+    border-collapse: collapse;
+    margin: 0 1em 0 0; /* push scrollbar to the left a bit */
+}
+
+/* table header */
+
+table thead th {
+    color: #eee;
+    background-color: #4682b4;
+    padding-left: 0.4ex; /* th & td consistency */
+    padding-right: 0.4ex;
+    width:2em;
+}
+
+table th + th {
+    border-left: 1px dotted #b0c4de;
+}
+
+/* table rows */
+
+table td + td {
+    border-left: 1px dotted #bbb;
+}
+
+table td {
+    text-align: right;
+    padding-left: 0.4ex;
+    padding-right: 0.4ex;
+    width:2em; /* th & td consistency */
+}
+
+table tr:nth-child(odd) {
+    background-color: #eeeeee;
+}
+table tr:nth-child(even) {
+    background-color: #ffffff;
+}
+
+table tr:hover {
+    background-color: #e68626;  /* a sort of ochre color */
+}
+
+/* fixed header */
+thead {
+    position:fixed; top:0em;
+}
+
+/* shift the rest with enclosing div ?! */
+.divstyle{ 
+    position:relative;
+    overflow-y:scroll;
+    max-height:90vh;
+    top:1em;
+    display:inline-block;
+}
+
+
+/* cell formatting */
+
+.rowid {
+    color: #aaa;
+    font-style: italic;
+}
+
+.alignleft {
+    text-align: left;
+}
+
+.aligncenter {
+    text-align: center;
+}
+
+.likemissing {
+    color: #808000;             /* olive */
+    text-align: center;
+}
+
+.nonfinite {
+    color: #808000;             /* olive */
+}
