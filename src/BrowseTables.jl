@@ -140,6 +140,7 @@ function write_html_table(filename::AbstractString, table;
         writestyle(io, options.css_path, options.css_inline)
         println(io, "</head>")    # close manually, opened in HTMLHEADSTART
         writetags(io, "body"; bropen = true) do io
+            println(io, "<div class='divstyle'>"); ## scroll properties attached 
             writetags(io, "table"; bropen = true) do io
                 writecaption(io, caption)
                 rows = Tables.rows(table)
@@ -149,6 +150,7 @@ function write_html_table(filename::AbstractString, table;
                         writerow(io, options, merge((rowid = RowId(id),), row))
                     end
                 end
+        println(io, "</div>"); ## endscroll
             end
         end
         println(io, "</html>")
