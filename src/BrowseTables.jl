@@ -130,16 +130,18 @@ end
 
 # high-level API
 
-function write_html_table(filename::AbstractString, table;
+function write_html_table(filename::AbstractString, tables;
                           title = "Table", caption = nothing,
                           options::TableOptions = TableOptions())
-    @argcheck Tables.istable(table) "The table should support the interface of Tables.jl."
+    ##
     open(filename, "w") do io
         write(io, HTMLHEADSTART)
         writetags(io -> writeescaped(io, title), io, "title")
         writestyle(io, options.css_path, options.css_inline)
         println(io, "</head>")    # close manually, opened in HTMLHEADSTART
         writetags(io, "body"; bropen = true) do io
+          for table in tables
+            @argcheck Tables.istable(table) "The table should support the interface of Tables.jl."
             println(io, "<div class='divstyle'>"); ## scroll properties attached 
             writetags(io, "table"; bropen = true) do io
                 writecaption(io, caption)
@@ -148,10 +150,13 @@ function write_html_table(filename::AbstractString, table;
                 writetags(io, "tbody"; bropen = true) do io
                     for (id, row) in enumerate(rows)
                         writerow(io, options, merge((rowid = RowId(id),), row))
+                        end
                     end
-                end
+               end;
             println(io, "</div>"); ## endscroll
-            end
+            end#for
+        
+          
         end
         println(io, "</html>")
     end
