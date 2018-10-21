@@ -11,6 +11,7 @@ body {
 
 table {
     border-collapse: collapse;
+    margin: 0 1em 0 0; /* push scrollbar to the left a bit */
 }
 
 /* table header */
@@ -18,6 +19,9 @@ table {
 table thead th {
     color: #eee;
     background-color: #4682b4;
+    padding-left: 0.4ex; /* th & td consistency */
+    padding-right: 0.4ex;
+    width:2em;
 }
 
 table th + th {
@@ -34,6 +38,7 @@ table td {
     text-align: right;
     padding-left: 0.4ex;
     padding-right: 0.4ex;
+    width:2em; /* th & td consistency */
 }
 
 table tr:nth-child(odd) {
