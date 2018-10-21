@@ -127,7 +127,7 @@ function writestyle(io::IO, path::AbstractString, inline::Bool)
     nothing
 end
 
-
+
 # high-level API
 
 function write_html_table(filename::AbstractString, table;
@@ -150,7 +150,7 @@ function write_html_table(filename::AbstractString, table;
                         writerow(io, options, merge((rowid = RowId(id),), row))
                     end
                 end
-        println(io, "</div>"); ## endscroll
+            println(io, "</div>"); ## endscroll
             end
         end
         println(io, "</html>")
