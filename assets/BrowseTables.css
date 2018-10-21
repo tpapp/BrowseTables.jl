@@ -47,6 +47,21 @@ table tr:hover {
     background-color: #e68626;  /* a sort of ochre color */
 }
 
+/* fixed header */
+thead {
+    position:fixed; top:0em;
+}
+
+/* shift the rest with enclosing div ?! */
+.divstyle{ 
+    position:relative;
+    overflow-y:scroll;
+    max-height:90vh;
+    top:1em;
+    display:inline-block;
+}
+
+
 /* cell formatting */
 
 .rowid {
