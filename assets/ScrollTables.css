@@ -11,7 +11,7 @@ body {
 
 table {
     border-collapse: collapse;
-    margin: 0 1em 0 0; /* push scrollbar to the left a bit */
+    /* margin: 0 1em 0 0;  push scrollbar to the left a bit */
 }
 
 /* table header */
@@ -54,16 +54,17 @@ table tr:hover {
 
 /* fixed header */
 thead {
-    position:fixed; top:0em;
+    position:sticky; top:0em; /* better*/
 }
 
-/* shift the rest with enclosing div ?! */
+/*  */
 .divstyle{ 
     position:relative;
     overflow-y:scroll;
-    max-height:90vh;
-    top:1em;
+    max-height:40vh;
+    
     display:inline-block;
+    margin: 0 2em 2em 0;
 }
 
 
