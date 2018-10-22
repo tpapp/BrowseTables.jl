@@ -17,6 +17,7 @@ const HTMLHEADSTART = """
 """
 
 const DEFAULTCSSPATH = abspath(@__DIR__, "..", "assets", "BrowseTables.css")
+const DEFAULTCSSDIR = abspath(@__DIR__, "..", "assets")
 
 Base.@kwdef struct TableOptions
     css_path::AbstractString = DEFAULTCSSPATH
