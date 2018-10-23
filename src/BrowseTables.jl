@@ -140,7 +140,7 @@ function write_html_table(filename::AbstractString, tables;
                           title = "Table", caption = nothing,
                           options::TableOptions = TableOptions())
     ##
-    if hasmethod(schema_patch, (typeof(tables), )) return write_html_table(filename, [tables], kwargs...);
+    if hasmethod(schema_patch, (typeof(tables), )) return write_html_table(filename, [tables], kwargs...); end;
     
     open(filename, "w") do io
         write(io, HTMLHEADSTART)
