@@ -108,7 +108,7 @@ writecaption(io, ::Nothing) = nothing
 
 writecaption(io, str::AbstractString) = writetags(io -> writeescaped(io, str), io, "caption")
 
-schema_patch(z::Array{NamedTuple{Z}, N}) where{Z, N} = Tables.Schema(Z, Z);
+schema_patch(z::Array{NamedTuple{Z, T}, N}) where{Z, T, N} = Tables.Schema(Z, Z);
 
 writeschema(io, ::Nothing) = nothing
 
