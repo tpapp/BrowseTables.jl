@@ -108,6 +108,8 @@ writecaption(io, ::Nothing) = nothing
 
 writecaption(io, str::AbstractString) = writetags(io -> writeescaped(io, str), io, "caption")
 
+schema_patch(z::Array{NamedTuple{Z, T}}) where{Z,T} = Tables.Schema(Z, Z);
+
 writeschema(io, ::Nothing) = nothing
 
 function writeschema(io, sch::Tables.Schema)
@@ -147,7 +149,7 @@ function write_html_table(filename::AbstractString, tables;
             writetags(io, "table"; bropen = true) do io
                 writecaption(io, caption)
                 rows = Tables.rows(table)
-                writeschema(io, Tables.schema(rows))
+                writeschema(io, schema_patch(table)); #Tables.schema(rows))
                 writetags(io, "tbody"; bropen = true) do io
                     for (id, row) in enumerate(rows)
                         writerow(io, options, merge((rowid = RowId(id),), row))
