@@ -49,16 +49,7 @@ table tr:hover {
 
 /* fixed header */
 thead {
-    position:fixed; top:0em;
-}
-
-/* shift the rest with enclosing div ?! */
-.divstyle{ 
-    position:relative;
-    overflow-y:scroll;
-    max-height:90vh;
-    top:1em;
-    display:inline-block;
+    positon: sticky; top: 0px;
 }
 
 
