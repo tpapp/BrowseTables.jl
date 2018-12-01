@@ -4,11 +4,13 @@ export write_html_table, open_html_table, TableOptions
 
 using ArgCheck: @argcheck
 import DefaultApplication
-using DocStringExtensions: SIGNATURES
+using DocStringExtensions: SIGNATURES, TYPEDEF
+using Parameters: @unpack
 import Tables
 
-
-# options and customizations
+####
+#### options and customizations
+####
 
 const HTMLHEADSTART = """
 <!DOCTYPE html><html lang="en"><head>
@@ -23,10 +25,11 @@ Base.@kwdef struct TableOptions
     css_inline::Bool = true
 end
 
-
-# low-level HTML construction
+####
+#### low-level HTML construction
+####
 
-function writeescaped(io, str::AbstractString)
+function write_escaped(io, str::AbstractString)
     for char in str
         if char == '&'
             write(io, "&amp;")
@@ -43,14 +46,22 @@ function writeescaped(io, str::AbstractString)
     nothing
 end
 
-escapestring(str::AbstractString) = (io = IOBuffer(); writeescaped(io, str); String(take!(io)))
+escape_string(str::AbstractString) = (io = IOBuffer(); write_escaped(io, str); String(take!(io)))
 
-function writetags(f, io::IO, tag::AbstractString; bropen = false, brclose = bropen,
-                   attributes = NamedTuple())
+"""
+$(SIGNATURES)
+
+Write tags `<tag>` and `</tag>` to `io` before and after a call to `f(io)`.
+
+`attributes` are emitted in the opening tag. `bropen` and `brclose` determine if a newlines
+are emitted after the opening and closing tags, respectively.
+"""
+function write_tags(f, io::IO, tag::AbstractString; bropen::Bool = false,
+                    brclose::Bool = bropen, attributes::NamedTuple = NamedTuple())
     write(io, "<", tag)
     for (k, v) in pairs(attributes)
         write(io, " ", string(k), "=\"")
-        writeescaped(io, v)
+        write_escaped(io, v)
         write(io, "\"")
     end
     write(io, ">")
@@ -61,92 +72,145 @@ function writetags(f, io::IO, tag::AbstractString; bropen = false, brclose = bro
     nothing
 end
 
-writecell(io, content::AbstractString; kind = "td", attributes = NamedTuple()) =
-    writetags(io -> writeescaped(io, content), io, kind; attributes = attributes)
-
-
-# cell formatting
+####
+#### HTML writing API
+####
 
 """
 $(SIGNATURES)
 
-HTML representation of a cell, with attributes. Content should be escaped properly, as it is
-written to HTML directly.
+Write the second argument to `io` using its HTML representation. This is used for formatting
+string-like objectsinside cells, captions, etc, extend accordingly for custom types.
+Defaults to whatever is emitted by `string`.
+
+Extend `make_cell` for higher-level formatting using CSS.
 """
-cellwithattributes(::TableOptions, x) = escapestring(string(x)), NamedTuple()
+write_html(io::IO, object) = write_html(io, string(object))
 
-cellwithattributes(::TableOptions, x::Real) =
-    escapestring(string(x)), isfinite(x) ? NamedTuple() : (class = "nonfinite", )
+write_html(io::IO, content::AbstractString) = write_escaped(io, content)
 
-cellwithattributes(::TableOptions, str::AbstractString) =
-    escapestring(str), (class = "alignleft", )
+"""
+$(TYPEDEF)
 
-cellwithattributes(::TableOptions, x::Union{Missing,Nothing}) =
-    escapestring(repr(x)), (class = "likemissing", )
-
-struct RowId
-    id::Int
+Wrapper for emitting contents which are already formatted as HTML.
+"""
+struct RawHTML{S <: String}
+    html::S
 end
 
-cellwithattributes(::TableOptions, rowid::RowId) =
-    escapestring(string(rowid.id)), (class = "rowid", )
+write_html(io::IO, raw_html::RawHTML) = write(io, raw_html.html)
 
-
-# table structure
+"""
+$(SIGNATURES)
 
-function writerow(io, options::TableOptions, nt::NamedTuple)
-    writetags(io, "tr"; brclose = true) do io
-        for x in values(nt)
-            htmlcontent, attributes = cellwithattributes(options, x)
-            writecell(io, htmlcontent; attributes = attributes)
+Content (written using `write_html`) and HTML attributes. HTML tag is specified by caller of
+`write_html`.
+"""
+struct Cell{C, A <: NamedTuple}
+    content::C
+    attributes::A
+end
+
+Cell(content; kwargs...) = Cell(content, NamedTuple{keys(kwargs)}(values(kwargs)))
+
+function write_html(io::IO, kind::Symbol, cell::Cell)
+    @unpack content, attributes = cell
+    write_tags(io -> write_html(io, content), io, string(kind); attributes = attributes)
+end
+
+"""
+$(SIGNATURES)
+
+Convert argument to `Cell`, which will be written using `write_html`.
+"""
+make_cell(::TableOptions, x) = Cell(x, NamedTuple())
+
+make_cell(::TableOptions, x::Real) =
+    Cell(x, isfinite(x) ? NamedTuple() : (class = "nonfinite", ))
+
+make_cell(::TableOptions, str::AbstractString) = Cell(str; class = "alignleft")
+
+make_cell(::TableOptions, x::Union{Missing,Nothing}) = Cell(repr(x); class = "likemissing")
+
+####
+#### table structure
+####
+
+function write_row(io, options::TableOptions, rowid, row)
+    write_tags(io, "tr"; brclose = true) do io
+        write_html(io, :td, Cell(string(rowid); class = "rowid"))
+        for name in propertynames(row)
+            write_html(io, :td, make_cell(options, getproperty(row, name)))
         end
     end
 end
 
-writecaption(io, ::Nothing) = nothing
+write_caption(io, ::Nothing) = nothing
 
-writecaption(io, str::AbstractString) = writetags(io -> writeescaped(io, str), io, "caption")
+write_caption(io, str) = write_tags(io -> write_html(io, str), io, "caption")
 
-writeschema(io, ::Nothing) = nothing
+"""
+$(SIGNATURES)
 
-function writeschema(io, sch::Tables.Schema)
-    writetags(io, "thead"; brclose = true) do io
-        writetags(io, "tr") do io
-            writecell(io, "#"; kind = "th") # row id
-            foreach(x -> writecell(io, escapestring(string(x)); kind = "th"), sch.names)
+Write a schema returned by `Tables.schema` (for rows) to `io`.
+"""
+write_schema(io, ::Nothing) = nothing
+
+function write_schema(io, sch::Tables.Schema)
+    write_tags(io, "thead"; brclose = true) do io
+        write_tags(io, "tr") do io
+            write_html(io, :th, Cell("#"; class = "rowid")) # row ID
+            for name in sch.names
+                write_html(io, :th, Cell(string(name)))
+            end
         end
     end
 end
 
-function writestyle(io::IO, path::AbstractString, inline::Bool)
+"""
+$(SIGNATURES)
+
+Write the stylesheet `inline` or via a `<link>`.
+"""
+function write_style(io::IO, path::AbstractString, inline::Bool)
     if inline
-        writetags(io -> write(io, read(path, String)), io, "style")
+        write_tags(io -> write(io, read(path, String)), io, "style")
     else
         println(io, raw"<link href=\"", path, raw"\" rel=\"stylesheet\" type=\"text/css\">")
     end
     nothing
 end
 
-
-# high-level API
+####
+#### high-level API
+####
 
+"""
+$(SIGNATURES)
+
+Write a HTML representation of `table` to `filename`.
+
+`title` and `caption` determine respective parts of the table. They will be escaped.
+
+`options` can be used to specify table options, such as CSS.
+"""
 function write_html_table(filename::AbstractString, table;
                           title = "Table", caption = nothing,
                           options::TableOptions = TableOptions())
     @argcheck Tables.istable(table) "The table should support the interface of Tables.jl."
     open(filename, "w") do io
-        write(io, HTMLHEADSTART)
-        writetags(io -> writeescaped(io, title), io, "title")
-        writestyle(io, options.css_path, options.css_inline)
-        println(io, "</head>")    # close manually, opened in HTMLHEADSTART
-        writetags(io, "body"; bropen = true) do io
-            writetags(io, "table"; bropen = true) do io
-                writecaption(io, caption)
+        write(io, HTMLHEADSTART) # contains an opening <head>
+        write_tags(io -> write_escaped(io, title), io, "title")
+        write_style(io, options.css_path, options.css_inline)
+        println(io, "</head>")  # close manually, opened in HTMLHEADSTART
+        write_tags(io, "body"; bropen = true) do io
+            write_tags(io, "table"; bropen = true) do io
+                write_caption(io, caption)
                 rows = Tables.rows(table)
-                writeschema(io, Tables.schema(rows))
-                writetags(io, "tbody"; bropen = true) do io
+                write_schema(io, Tables.schema(rows))
+                write_tags(io, "tbody"; bropen = true) do io
                     for (id, row) in enumerate(rows)
-                        writerow(io, options, merge((rowid = RowId(id),), row))
+                        write_row(io, options, id,  row)
                     end
                 end
             end
@@ -156,6 +220,13 @@ function write_html_table(filename::AbstractString, table;
     nothing
 end
 
+"""
+$(SIGNATURES)
+
+Write `table` to `filename` (temporary file is generated by default), then open it using the
+default application (hopefully a browser). Keyword arguments are passed on to
+[`write_html_table`](@ref).
+"""
 function open_html_table(table; filename = tempname() * ".html", kwargs...)
     write_html_table(filename, table; kwargs...)
     DefaultApplication.open(filename)
