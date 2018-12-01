@@ -32,4 +32,4 @@ open_html_table(table) # open in browser
 
 The above table renders as
 
-<img src="./assets/readme_example.svg" width="50%">
+<img src="./assets/readme_example.svg" width="20%">
