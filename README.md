@@ -32,6 +32,4 @@ open_html_table(table) # open in browser
 
 The above table renders as
 
-<div style="width: 50%;">
-![example rendered as svg](./assets/readme_example.svg)<img src="./assets/readme_example.svg">
-</div>
+![example rendered as svg](./assets/readme_example.svg)<img src="./assets/readme_example.svg" style="width:50%;">
