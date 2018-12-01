@@ -4,3 +4,7 @@
 /deps/deps.jl
 /docs/build
 /Manifest.toml
+/assets/readme_example.html
+/assets/readme_example.pdf
+/assets/readme_example_trimmed.log
+/assets/readme_example_trimmed.pdf
