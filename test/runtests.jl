@@ -31,12 +31,14 @@ end
 
 @testset "rudimentary check for whole file" begin
     filename = tempname() * ".html"
+    @info "generating HTML for table" filename
     tb = (a = 1:2, b = [missing, 3])
     @test Tables.schema(tb) ≢ nothing # if this fails, interface changed, rewrite test
     write_html_table(filename, tb)
     html = read(filename, String)
-    @test occursin("<thead><tr><th class=\"rowid\">#</th><th>a</th><th>b</th></tr></thead>",
-                   html)
+    schema_html = "<tr><th class=\"rowid\">#</th><th>a</th><th>b</th></tr>"
+    @test occursin("<thead>$(schema_html)</thead>", html)
+    @test occursin("<tfoot>$(schema_html)</tfoot>", html)
     @test occursin("<tbody>\n<tr><td class=\"rowid\">1</td><td>1</td>" *
                    "<td class=\"likemissing\">missing</td></tr>\n<tr>" *
                    "<td class=\"rowid\">2</td><td>2</td><td>3</td></tr>\n</tbody>", html)
