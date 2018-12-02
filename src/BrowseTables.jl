@@ -152,12 +152,12 @@ write_caption(io, str) = write_tags(io -> write_html(io, str), io, "caption")
 """
 $(SIGNATURES)
 
-Write a schema returned by `Tables.schema` (for rows) to `io`.
+Write the schema returned by `Tables.schema` (for rows) to `io`, wrapped by `tag`.
 """
-write_schema(io, ::Nothing) = nothing
+write_schema(io, tag, ::Nothing) = nothing
 
-function write_schema(io, sch::Tables.Schema)
-    write_tags(io, "thead"; brclose = true) do io
+function write_schema(io, tag, sch::Tables.Schema)
+    write_tags(io, tag; brclose = true) do io
         write_tags(io, "tr") do io
             write_html(io, :th, Cell("#"; class = "rowid")) # row ID
             for name in sch.names
@@ -207,12 +207,14 @@ function write_html_table(filename::AbstractString, table;
             write_tags(io, "table"; bropen = true) do io
                 write_caption(io, caption)
                 rows = Tables.rows(table)
-                write_schema(io, Tables.schema(rows))
+                sch = Tables.schema(rows)
+                write_schema(io, "thead", sch)
                 write_tags(io, "tbody"; bropen = true) do io
                     for (id, row) in enumerate(rows)
                         write_row(io, options, id,  row)
                     end
                 end
+                write_schema(io, "tfoot", sch)
             end
         end
         println(io, "</html>")

@@ -15,7 +15,7 @@ table {
 
 /* table header */
 
-table thead th {
+table thead th, table tfoot th {
     color: #eee;
     background-color: #4682b4;
 }
@@ -47,9 +47,14 @@ table tr:hover {
     background-color: #e68626;  /* a sort of ochre color */
 }
 
-/* fixed header */
+/* fixed header and footer */
+
 thead {
     position: sticky; top: 0px;
+}
+
+tfoot {
+    position: sticky; bottom: 0px;
 }
 
 
