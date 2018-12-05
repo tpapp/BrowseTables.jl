@@ -13,10 +13,10 @@ Julia package for browsing tables that that implement the [Tables.jl](https://gi
 
 ## Installation
 
-Not yet registered, install with
+The package is registered, install with
 
 ```julia
-pkg> add https://github.com/tpapp/BrowseTables.jl.git
+pkg> add BrowseTables
 ```
 
 ## Usage
