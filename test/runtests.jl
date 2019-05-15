@@ -23,7 +23,11 @@ repr_cell(x, o = opt) = repr_html(:td, make_cell(o, x))
 
 @testset "cell formatting" begin
     @test repr_cell(1) == "<td>1</td>"
-    @test repr_cell(π) == "<td>π = 3.1415926535897...</td>"
+    if VERSION < v"1.2-"
+        @test repr_cell(π) == "<td>π = 3.1415926535897...</td>"
+    else
+        @test repr_cell(π) == "<td>π</td>"
+    end
     @test repr_cell(missing) == "<td class=\"likemissing\">missing</td>"
     @test repr_cell(nothing) == "<td class=\"likemissing\">nothing</td>"
     @test repr_cell("string<>") == "<td class=\"alignleft\">string&lt;&gt;</td>"
