@@ -47,3 +47,11 @@ end
                    "<td class=\"likemissing\">missing</td></tr>\n<tr>" *
                    "<td class=\"rowid\">2</td><td>2</td><td>3</td></tr>\n</tbody>", html)
 end
+
+@testset "HTMLTable" begin
+    tb = (a = 1:2, b = [missing, 3])
+    html = sprint(show, "text/html", HTMLTable(tb))
+    @test occursin("<thead>", html)
+    @test occursin("<tbody>", html)
+    @test occursin("<tfoot>", html)
+end

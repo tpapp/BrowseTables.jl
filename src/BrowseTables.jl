@@ -1,6 +1,6 @@
 module BrowseTables
 
-export write_html_table, open_html_table, TableOptions
+export write_html_table, open_html_table, TableOptions, HTMLTable
 
 using ArgCheck: @argcheck
 import DefaultApplication
@@ -185,42 +185,51 @@ end
 #### high-level API
 ####
 
+require_table(table) =
+    @argcheck Tables.istable(table) "The table should support the interface of Tables.jl."
+
 """
 $(SIGNATURES)
 
-Write a HTML representation of `table` to `filename`.
+Write a HTML representation of `table` to `io`.  A file path (string) may be given
+instead of an `io`.
 
 `title` and `caption` determine respective parts of the table. They will be escaped.
 
 `options` can be used to specify table options, such as CSS.
 """
-function write_html_table(filename::AbstractString, table;
+function write_html_table(io::IO, table;
                           title = "Table", caption = nothing,
                           options::TableOptions = TableOptions())
-    @argcheck Tables.istable(table) "The table should support the interface of Tables.jl."
-    open(filename, "w") do io
-        write(io, HTMLHEADSTART) # contains an opening <head>
-        write_tags(io -> write_escaped(io, title), io, "title")
-        write_style(io, options.css_path, options.css_inline)
-        println(io, "</head>")  # close manually, opened in HTMLHEADSTART
-        write_tags(io, "body"; bropen = true) do io
-            write_tags(io, "table"; bropen = true) do io
-                write_caption(io, caption)
-                rows = Tables.rows(table)
-                sch = Tables.schema(rows)
-                write_schema(io, "thead", sch)
-                write_tags(io, "tbody"; bropen = true) do io
-                    for (id, row) in enumerate(rows)
-                        write_row(io, options, id,  row)
-                    end
+    require_table(table)
+    write(io, HTMLHEADSTART) # contains an opening <head>
+    write_tags(io -> write_escaped(io, title), io, "title")
+    write_style(io, options.css_path, options.css_inline)
+    println(io, "</head>")  # close manually, opened in HTMLHEADSTART
+    write_tags(io, "body"; bropen = true) do io
+        write_tags(io, "table"; bropen = true) do io
+            write_caption(io, caption)
+            rows = Tables.rows(table)
+            sch = Tables.schema(rows)
+            write_schema(io, "thead", sch)
+            write_tags(io, "tbody"; bropen = true) do io
+                for (id, row) in enumerate(rows)
+                    write_row(io, options, id,  row)
                 end
-                write_schema(io, "tfoot", sch)
             end
+            write_schema(io, "tfoot", sch)
         end
-        println(io, "</html>")
     end
+    println(io, "</html>")
     nothing
 end
+
+function write_html_table(filename::AbstractString, table; kwargs...)
+    require_table(table)  # check it before creating a file
+    open(io -> write_html_table(io, table; kwargs...), filename, "w")
+    nothing
+end
+
 
 """
 $(SIGNATURES)
@@ -233,5 +242,28 @@ function open_html_table(table; filename = tempname() * ".html", kwargs...)
     write_html_table(filename, table; kwargs...)
     DefaultApplication.open(filename)
 end
+
+Base.@kwdef struct HTMLTable
+    table
+    title::AbstractString = "Table"
+    caption = nothing
+    options::TableOptions = TableOptions()
+end
+
+"""
+    HTMLTable(table; title, caption, options)
+
+Wrap `table` in an object that is showable as `text/html` in Julia's display system.
+This is analogous to `Base.Docs.HTML`.
+
+See [`write_html_table`](@ref) for how keyword arguments are interpreted.
+"""
+HTMLTable(table; kwargs...) = HTMLTable(; table = table, kwargs...)
+
+Base.show(io::IO, ::MIME"text/html", html::HTMLTable) =
+    write_html_table(io, html.table;
+                     title = html.title,
+                     caption = html.caption,
+                     options = html.options)
 
 end # module
