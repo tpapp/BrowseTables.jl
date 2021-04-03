@@ -1,16 +1,21 @@
+# see documentation at https://juliadocs.github.io/Documenter.jl/stable/
+
 using Documenter, BrowseTables
 
 makedocs(
     modules = [BrowseTables],
-    format = :html,
+    format = Documenter.HTML(; prettyurls = get(ENV, "CI", nothing) == "true"),
+    authors = "Tamas K. Papp",
     sitename = "BrowseTables.jl",
     pages = Any["index.md"]
+    # strict = true,
+    # clean = true,
+    # checkdocs = :exports,
 )
 
+# Some setup is needed for documentation deployment, see “Hosting Documentation” and
+# deploydocs() in the Documenter manual for more information.
 deploydocs(
     repo = "github.com/tpapp/BrowseTables.jl.git",
-    target = "build",
-    julia = "1.0",
-    deps = nothing,
-    make = nothing,
+    push_preview = true
 )
