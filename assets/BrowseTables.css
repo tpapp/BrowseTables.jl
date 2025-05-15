@@ -47,6 +47,10 @@ table tr:hover {
     background-color: #e68626;  /* a sort of ochre color */
 }
 
+table tr.selected {
+    background-color: #ffff00 !important;  /* yellow */
+}
+
 /* fixed header and footer */
 
 thead {

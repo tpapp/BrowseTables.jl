@@ -41,3 +41,11 @@ Please read the docstrings for further information. That said, the primary desig
 The above table renders as
 
 <img src="./assets/readme_example.svg" width="20%">
+
+## Features
+
+- Responsive table layout with sticky headers
+- Hover highlighting (orange) when mousing over rows
+- Click to select rows (highlighted in yellow)
+- Support for missing values and non-finite numbers
+- Compatible with any table implementing the Tables.jl interface

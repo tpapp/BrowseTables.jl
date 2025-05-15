@@ -18,6 +18,21 @@ const HTMLHEADSTART = """
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
 """
 
+const JAVASCRIPT_ROW_SELECTION = """
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Add click event listeners to all table rows in tbody
+  const rows = document.querySelectorAll('tbody tr');
+  rows.forEach(row => {
+    row.addEventListener('click', function() {
+      // Toggle selected class on clicked row
+      this.classList.toggle('selected');
+    });
+  });
+});
+</script>
+"""
+
 const DEFAULTCSSPATH = abspath(@__DIR__, "..", "assets", "BrowseTables.css")
 
 Base.@kwdef struct TableOptions
@@ -205,6 +220,7 @@ function write_html_table(io::IO, table;
     write(io, HTMLHEADSTART) # contains an opening <head>
     write_tags(io -> write_escaped(io, title), io, "title")
     write_style(io, options.css_path, options.css_inline)
+    write(io, JAVASCRIPT_ROW_SELECTION) # Add JavaScript for row selection
     println(io, "</head>")  # close manually, opened in HTMLHEADSTART
     write_tags(io, "body"; bropen = true) do io
         write_tags(io, "table"; bropen = true) do io
