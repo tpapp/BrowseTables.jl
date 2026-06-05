@@ -1,6 +1,6 @@
 name = "BrowseTables"
 uuid = "5f4fecfd-7eb0-5078-b7f6-ad1f2563c22a"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Tamas K. Papp <tkpapp@gmail.com>"]
 
 [deps]
