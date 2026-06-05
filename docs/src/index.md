@@ -1,3 +1,0 @@
-# BrowseTables
-
-*Documentation goes here.*
